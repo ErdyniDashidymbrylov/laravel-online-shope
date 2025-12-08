@@ -11,6 +11,11 @@ services:
   php-fpm:
     build:
       dockerfile: ./docker/Dockerfile
+    environment:
+      - APP_ENV=local
+      - APP_KEY=base64:5sSiCEgdu9Y8sFKEnAc4hqubVozhoqJiqYNlZWmiPeY=
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
     volumes:
       - .:/var/www/html
       - .:/docker/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-xdebug.ini
@@ -21,9 +26,9 @@ services:
     volumes:
       - ./docker/postgres/data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=testdb
 
     ports:
       - 54321:5432
