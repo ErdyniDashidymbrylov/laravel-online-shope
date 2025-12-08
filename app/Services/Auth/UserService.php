@@ -3,7 +3,11 @@
 namespace App\Services\Auth;
 
 use App\DTOs\RegisterDto;
+use App\DTOs\UpdateProfileDto;
 use App\Models\User;
+use Cassandra\Exception\ValidationException;
+use Couchbase\AuthenticationException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
@@ -19,6 +23,31 @@ class UserService
         $user->save();
 
         return $user;
+    }
+    /**
+     * @throws AuthenticationException
+     */
+    public function updateProfile(UpdateProfileDto $dto): void
+    {
+        $user = Auth::user();
+        $user->fill($dto->toArray());
+        $user->save();
+    }
+    /**
+     * @throws ValidationException
+     */
+    public function updatePassword(
+        User $user,
+        string $currentPassword,
+        string $newPassword
+    ): void
+    {
+        if (!Hash::check($currentPassword, $user->password)) {
+            throw ValidationException::withMessages(['current_password' => 'Invalid current password']);
+        }
+
+        $user->password = Hash::make($newPassword);
+        $user->save();
     }
 }
 
