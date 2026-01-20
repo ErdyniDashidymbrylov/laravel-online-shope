@@ -84,7 +84,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
         $this
-            ->service
+            ->userService
             ->updatePassword(
                 $user,
                 $validatedData['current_password'],
