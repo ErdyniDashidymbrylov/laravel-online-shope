@@ -3,6 +3,8 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+
 
 
 Route::middleware('guest')->group(function () {
@@ -25,3 +27,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
 });
+
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+
+Route::get('/products/{product}', [ProductController::class, 'show'])
+    ->name('products.show');
+
+

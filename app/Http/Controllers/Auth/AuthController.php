@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\DTOs\RegisterDto;
-use App\DTOs\UpdateProfileDto;
+use App\DTO\RegisterDto;
+use App\DTO\UpdateProfileDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;

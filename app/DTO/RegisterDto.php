@@ -1,5 +1,5 @@
 <?php
-namespace App\DTOs;
+namespace App\DTO;
 
 use Spatie\LaravelData\Data;
 use App\Http\Requests\Auth\RegisterRequest;

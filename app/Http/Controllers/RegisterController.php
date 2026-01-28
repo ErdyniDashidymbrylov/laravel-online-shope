@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\RegisterRequest;
-use App\DTOs\RegisterDto;
+use App\DTO\RegisterDto;
 use App\Services\Auth\UserService;
 
 class RegisterController extends Controller

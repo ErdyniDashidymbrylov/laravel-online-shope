@@ -2,8 +2,8 @@
 
 namespace App\Services\Auth;
 
-use App\DTOs\RegisterDto;
-use App\DTOs\UpdateProfileDto;
+use App\DTO\RegisterDto;
+use App\DTO\UpdateProfileDto;
 use App\Models\User;
 use Cassandra\Exception\ValidationException;
 use Couchbase\AuthenticationException;
