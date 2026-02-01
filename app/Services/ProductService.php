@@ -98,6 +98,20 @@ class ProductService
     {
         return (int) (Product::query()->max('price') ?? 0);
     }
+    public function getProductsByCategoryId(int $categoryId, ProductFilterDto $dto)
+    {
+        $query = Product::query()
+            ->where('category_id', $categoryId)
+            ->with('category');
+
+        // дальше — тот же код поиска, фильтрации и сортировки,
+        // который мы уже реализовали ранее
+
+        return $query
+            ->paginate($dto->per_page)
+            ->withQueryString();
+    }
+
 }
 
 

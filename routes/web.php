@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 
@@ -27,12 +28,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
 });
-Route::view('/', 'main')->name('main');
+Route::view('/', 'main')->name('home');
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 
 Route::get('/products/{product}', [ProductController::class, 'show'])
     ->name('products.show');
+
+Route::get('/categories', [CategoryController::class, 'index'])
+    ->name('categories.index');
+
+Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])
+    ->name('categories.show');
+
 
 
