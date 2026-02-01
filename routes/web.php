@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
 });
+Route::view('/', 'main')->name('main');
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
