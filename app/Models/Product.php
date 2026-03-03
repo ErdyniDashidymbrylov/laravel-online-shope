@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+/* @property int $id
+ * @property int $stock
+
+ */
 
 class Product extends Model
 {
@@ -14,4 +18,9 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    protected $fillable = [
+        'name',
+        'price',
+        'stock', // добавить
+    ];
 }

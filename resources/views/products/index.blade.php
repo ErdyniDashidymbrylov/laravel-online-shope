@@ -124,6 +124,15 @@
                             <a href="{{ $detailsUrl }}" class="btn btn-outline-primary mt-auto">
                                 Подробнее
                             </a>
+                            <form method="POST"
+                                  action="{{ route('cart.items.store', $product) }}"
+                                  data-ajax-cart="1"
+                                  class="d-inline">
+                                @csrf
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary">В корзину</button>
+                            </form>
+
                         </div>
                     </div>
                 </div>

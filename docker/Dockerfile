@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) pdo_pgsql \
     && docker-php-ext-install -j$(nproc) exif \
     && docker-php-ext-install -j$(nproc) sockets \
+    && docker-php-ext-install -j$(nproc) bcmath \
     && docker-php-ext-enable sockets \
     && docker-php-ext-configure gd \
         --with-freetype=/usr/include/ \
