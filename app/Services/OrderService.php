@@ -1,0 +1,133 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class OrderService
+{
+    /**
+     * @throws \Throwable
+     */
+    public function createOrder(User $user, string $paymentMethod, SessionCartService $cart): Order
+    {
+        $items = $cart->getItems();
+
+        if (!$items || count($items) === 0) {
+            throw ValidationException::withMessages([
+                'cart' => 'Корзина пуста.'
+            ]);
+        }
+
+        $address = $user->addresses()
+            ->where('is_default', true)
+            ->first();
+
+        if (!$address) {
+            throw ValidationException::withMessages([
+                'address' => 'Добавьте основной адрес.'
+            ]);
+        }
+
+        return DB::transaction(function () use ($user, $address, $paymentMethod, $items, $cart) {
+
+            $total = 0;
+
+            foreach ($items as $item) {
+                $total += $item['unit_price'] * $item['quantity'];
+            }
+
+            $order = Order::create([
+                'user_id' => $user->id,
+                'address_id' => $address->id,
+                'shipping_address' => $address->full_address,
+                'status' => Order::STATUS_PENDING,
+                'payment_method' => $paymentMethod,
+                'total' => $total,
+            ]);
+
+            foreach ($items as $item) {
+
+                $product = Product::find($item['product']->id);
+
+                if (!$product) {
+                    throw ValidationException::withMessages([
+                        'product' => 'Товар не найден.'
+                    ]);
+                }
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['unit_price'],
+                ]);
+            }
+
+            $cart->clear();
+
+            return $order;
+        });
+    }
+
+    public function cancel(Order $order): void
+    {
+        if ($order->status !== Order::STATUS_PENDING) {
+            throw ValidationException::withMessages([
+                'status' => 'Заказ нельзя отменить.'
+            ]);
+        }
+
+        $order->update([
+            'status' => Order::STATUS_CANCELED
+        ]);
+    }
+
+    public function markAsPaid(Order $order): void
+    {
+        if ($order->status !== Order::STATUS_PENDING) {
+            throw ValidationException::withMessages([
+                'status' => 'Нельзя оплатить заказ в текущем статусе.',
+            ]);
+        }
+
+        DB::transaction(function () use ($order): void {
+            $items = $order->items()->get();
+            if ($items->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'status' => 'В заказе нет товаров.',
+                ]);
+            }
+
+            $products = Product::query()
+                ->whereIn('id', $items->pluck('product_id')->all())
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($items as $item) {
+                $product = $products->get($item->product_id);
+                if (!$product || $product->stock < $item->quantity) {
+                    throw ValidationException::withMessages([
+                        'status' => 'Недостаточно товара на складе.',
+                    ]);
+                }
+            }
+
+            foreach ($items as $item) {
+                $product = $products->get($item->product_id);
+                $product->stock = $product->stock - $item->quantity;
+                $product->save();
+            }
+
+            $order->status = Order::STATUS_PAID;
+            $order->save();
+        });
+    }
+
+}
