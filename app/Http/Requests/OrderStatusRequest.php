@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+declare(strict_types=1);
 
+namespace App\Http\Requests;
 
 use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-
 
 class OrderStatusRequest extends FormRequest
 {
@@ -25,4 +25,3 @@ class OrderStatusRequest extends FormRequest
         ];
     }
 }
-

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderStatusRequest;
@@ -7,13 +9,10 @@ use App\Http\Requests\OrderStoreRequest;
 use App\Models\Order;
 use App\Services\OrderService;
 use App\Services\SessionCartService;
-use http\Client\Response;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-
-
 
 class OrderController extends Controller
 {

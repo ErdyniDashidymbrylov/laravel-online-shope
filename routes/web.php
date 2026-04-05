@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
 
+
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
-
-
+use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     // registration
@@ -18,7 +19,7 @@ Route::middleware('guest')->group(function () {
     // login
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
- });
+});
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -58,6 +59,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])
         ->name('orders.status.update');
 });
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
+        Route::get('/', [DashboardController::class, 'index'])
+            ->name('dashboard');
 
-
+    });

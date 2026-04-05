@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\DTO\ProductFilterDto;
@@ -34,5 +36,3 @@ class ProductController extends Controller
         return view('products.show', compact('product'));
     }
 }
-
-

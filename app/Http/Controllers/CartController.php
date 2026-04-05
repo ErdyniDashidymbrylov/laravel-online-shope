@@ -1,23 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Models\Cart;
 use App\Models\Product;
 use App\Services\SessionCartService;
-use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 
 class CartController extends Controller
 {
     public function __construct(
         private SessionCartService $sessionCartService,
-    ){}
+    ) {
+    }
 
     public function index(): Factory|View
     {
@@ -96,4 +97,3 @@ class CartController extends Controller
 
 
 }
-

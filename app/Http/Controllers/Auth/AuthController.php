@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\DTO\RegisterDto;
@@ -7,8 +9,8 @@ use App\DTO\UpdateProfileDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Services\Auth\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,8 @@ class AuthController extends Controller
 {
     public function __construct(
         private readonly UserService $service
-    ) {}
+    ) {
+    }
 
     public function showRegistrationForm()
     {

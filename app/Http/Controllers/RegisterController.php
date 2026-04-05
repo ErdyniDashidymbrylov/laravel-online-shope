@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\RegisterRequest;
 use App\DTO\RegisterDto;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\Auth\UserService;
 
 class RegisterController extends Controller
@@ -27,4 +29,3 @@ class RegisterController extends Controller
         return redirect()->route('login')->with('success', 'Registration successful!');
     }
 }
-

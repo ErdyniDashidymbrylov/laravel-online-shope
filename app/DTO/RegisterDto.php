@@ -1,8 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\DTO;
 
-use Spatie\LaravelData\Data;
 use App\Http\Requests\Auth\RegisterRequest;
+use Spatie\LaravelData\Data;
 
 class RegisterDto extends Data
 {
@@ -12,7 +15,8 @@ class RegisterDto extends Data
         public string $email,
         public ?string $phone,
         public string $password,
-    ) {}
+    ) {
+    }
 
     public static function fromRequest(RegisterRequest $request): self
     {

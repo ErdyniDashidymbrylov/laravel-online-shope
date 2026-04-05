@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTO;
 
 use App\Http\Requests\ProductFilterRequest;
@@ -35,4 +37,3 @@ class ProductFilterDto extends Data
         );
     }
 }
-

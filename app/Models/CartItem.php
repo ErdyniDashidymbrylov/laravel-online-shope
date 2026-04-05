@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +15,8 @@ class CartItem extends Model
     {
         return $this->belongsTo(Cart::class);
     }
-    public function product() {
+    public function product()
+    {
         return $this->belongsTo(Product::class);
     }
 

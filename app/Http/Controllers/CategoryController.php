@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\DTO\ProductFilterDto;
 use App\Http\Requests\ProductFilterRequest;
-use App\Services\ProductService;
-use Illuminate\Http\Request;
 use App\Models\Category;
-
+use App\Services\ProductService;
 
 class CategoryController extends Controller
 {
@@ -47,4 +47,3 @@ class CategoryController extends Controller
         return $this->productService;
     }
 }
-
