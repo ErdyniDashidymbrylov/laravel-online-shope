@@ -41,7 +41,15 @@
                           class="d-inline">
                         @csrf
                         <input type="hidden" name="quantity" value="1">
-                        <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                        <button type="submit"
+                                class="btn btn-primary"
+                                @disabled((int) $product->stock < 1)>
+                            @if((int) $product->stock > 0)
+                                Добавить в корзину
+                            @else
+                                Нет в наличии
+                            @endif
+                        </button>
                     </form>
 
                     <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">Назад в каталог</a>

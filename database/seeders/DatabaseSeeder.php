@@ -13,9 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        fake()->locale('ru_RU');
         $this->call([
             ProductSeeder::class,
         ]);
         $this->call(RoleSeeder::class);
     }
+
 }

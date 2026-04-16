@@ -18,7 +18,7 @@ class CheckRole
         $user = $request->user();
 
         if (!$user) {
-            abort(Response::HTTP_FORBIDDEN);
+            return redirect()->route('login');
         }
 
         if ($roles === []) {
@@ -26,7 +26,13 @@ class CheckRole
         }
 
         if (!$user->hasAnyRole($roles)) {
-            abort(Response::HTTP_FORBIDDEN);
+            if ($request->expectsJson()) {
+                abort(Response::HTTP_FORBIDDEN);
+            }
+
+            return redirect()
+                ->route('home')
+                ->with('error', 'Доступ в админку разрешён только администраторам');
         }
 
         return $next($request);

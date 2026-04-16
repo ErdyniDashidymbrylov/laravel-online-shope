@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin;
 
-use App\DTO\RoleDto;
+use App\DTO\Admin\RoleDto;
 use App\Models\Role;
 use Exception;
 

@@ -1,5 +1,4 @@
 @php($perPage = $dto->per_page ?? 10)
-@php($perPage = $dto->per_page ?? 10)
 @php($q = $dto->q ?? '')
 @php($minPrice = $dto->min_price ?? '')
 @php($maxPrice = $dto->max_price ?? '')
@@ -119,20 +118,32 @@
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ $product->name }}</h5>
                             <p class="fw-semibold mb-3">{{ number_format($product->price, 0, ',', ' ') }} ₽</p>
+                            <p class="text-muted small mb-3">
+                                Осталось: {{ (int) $product->stock }} шт.
+                            </p>
 
-                            @php($detailsUrl = Route::has('products.show') ? route('products.show', $product) : '#')
-                            <a href="{{ $detailsUrl }}" class="btn btn-outline-primary mt-auto">
-                                Подробнее
-                            </a>
-                            <form method="POST"
-                                  action="{{ route('cart.items.store', $product) }}"
-                                  data-ajax-cart="1"
-                                  class="d-inline">
-                                @csrf
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-primary">В корзину</button>
-                            </form>
-
+                            <div class="mt-auto d-grid gap-2">
+                                @php($detailsUrl = Route::has('products.show') ? route('products.show', $product) : '#')
+                                <a href="{{ $detailsUrl }}" class="btn btn-outline-primary w-100">
+                                    Подробнее
+                                </a>
+                                <form method="POST"
+                                      action="{{ route('cart.items.store', $product) }}"
+                                      data-ajax-cart="1"
+                                      class="d-grid">
+                                    @csrf
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit"
+                                            class="btn btn-primary w-100"
+                                            @disabled((int) $product->stock < 1)>
+                                        @if((int) $product->stock > 0)
+                                            В корзину
+                                        @else
+                                            Нет в наличии
+                                        @endif
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -146,4 +157,3 @@
         </div>
     </div>
 @endsection
-

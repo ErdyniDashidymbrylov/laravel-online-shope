@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderAdminController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -63,8 +66,18 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-
         Route::get('/', [DashboardController::class, 'index'])
             ->name('dashboard');
 
+        Route::post('/roles', [DashboardController::class, 'store'])->name('roles.store');
+        Route::patch('/roles/{role}', [DashboardController::class, 'update'])->name('roles.update');
+        Route::delete('/roles/{role}', [DashboardController::class, 'destroy'])->name('roles.destroy');
+
+        Route::resource('products', AdminProductController::class);
+        Route::resource('users', UserAdminController::class);
+
+        Route::patch('users/{user}/password', [UserAdminController::class, 'resetPassword'])
+            ->name('users.password');
+
+        Route::resource('orders', OrderAdminController::class);
     });

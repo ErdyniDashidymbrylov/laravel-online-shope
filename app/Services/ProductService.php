@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DTO\Admin\ProductCreateDto;
+use App\DTO\Admin\ProductUpdateDto;
+use App\DTO\ProductDto;
 use App\DTO\ProductFilterDto;
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -112,6 +116,55 @@ class ProductService
         return $query
             ->paginate($dto->per_page)
             ->withQueryString();
+    }
+
+    public function create(ProductDto $dto): Product
+    {
+        $data = $dto->toProductData();
+
+        if ($dto->image) {
+            $data['image'] = $dto->image->store('products', 'public');
+        }
+
+        return Product::create($data);
+    }
+    public function update(Product $product, ProductDto $dto): Product
+    {
+        $data = $dto->toProductData();
+
+        if ($dto->image) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            $data['image'] = $dto->image->store('products', 'public');
+        }
+
+        $product->update($data);
+
+        return $product;
+    }
+    public function delete(Product $product): void
+    {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        $product->delete();
+    }
+    public function createProduct(ProductCreateDto $dto): Product
+    {
+        return Product::create($dto->toArray());
+    }
+
+    public function updateProduct(Product $product, ProductUpdateDto $dto): bool
+    {
+        return $product->update($dto->toArray());
+    }
+
+    public function deleteProduct(Product $product): bool
+    {
+        return $product->delete();
     }
 
 }

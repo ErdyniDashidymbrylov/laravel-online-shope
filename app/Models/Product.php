@@ -23,7 +23,10 @@ class Product extends Model
     }
     protected $fillable = [
         'name',
+        'description',
         'price',
-        'stock', // добавить
+        'stock',
+        'image',
+        'category_id',
     ];
 }

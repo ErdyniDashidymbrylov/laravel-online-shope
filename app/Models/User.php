@@ -23,6 +23,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
     ];
@@ -53,6 +55,27 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function getNameAttribute(): string
+    {
+        $fullName = trim((string) ($this->first_name . ' ' . $this->last_name));
+
+        return $fullName !== '' ? $fullName : (string) $this->email;
+    }
+
+    public function setNameAttribute(string $value): void
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return;
+        }
+
+        $parts = preg_split('/\s+/', $value, 2) ?: [];
+
+        $this->attributes['first_name'] = $parts[0] ?? $value;
+        $this->attributes['last_name'] = $parts[1] ?? '';
     }
     public function carts()
     {
