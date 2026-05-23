@@ -2,82 +2,95 @@
 
 declare(strict_types=1);
 
-
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    // registration
-    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register.form');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::controller(AuthController::class)
+    ->middleware('guest')
+    ->group(function (): void {
+        Route::get('/register', 'showRegistrationForm')->name('register.form');
+        Route::post('/register', 'register')->name('register');
 
-    // login
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-});
+        Route::get('/login', 'showLoginForm')->name('login');
+        Route::post('/login', 'login')->name('login.submit');
+    });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile.form');
-    Route::patch('/profile/{id}', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::controller(EmailVerificationController::class)->group(function (): void {
+        Route::get('/email/verify', 'notice')->name('verification.notice');
+        Route::get('/email/verify/{id}/{hash}', 'verify')
+            ->middleware('signed')
+            ->name('verification.verify');
+        Route::post('/email/verification-notification', 'send')
+            ->middleware('throttle:6,1')
+            ->name('verification.send');
+    });
 
-    Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('password.form');
-    Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.update');
+    Route::controller(AuthController::class)
+        ->middleware('verified')
+        ->group(function (): void {
+            Route::get('/profile', 'showProfile')->name('profile.form');
+            Route::patch('/profile/{id}', 'updateProfile')->name('profile.update');
 
+            Route::get('/change-password', 'showChangePasswordForm')->name('password.form');
+            Route::post('/change-password', 'updatePassword')->name('password.update');
+        });
 });
+
 Route::view('/', 'main')->name('home');
 
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-
-
-Route::get('/products/{product}', [ProductController::class, 'show'])
-    ->name('products.show');
-
-Route::get('/categories', [CategoryController::class, 'index'])
-    ->name('categories.index');
-
-Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])
-    ->name('categories.show');
-
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/items/{product}', [CartController::class, 'store'])->name('cart.items.store');
-Route::patch('/cart/items/{product}', [CartController::class, 'update'])->name('cart.items.update');
-Route::delete('/cart/items/{product}', [CartController::class, 'destroy'])->name('cart.items.destroy');
-Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
-
-// routes/web.php
-
-Route::middleware('auth')->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])
-        ->name('orders.status.update');
+Route::controller(ProductController::class)->group(function (): void {
+    Route::get('/products', 'index')->name('products.index');
+    Route::get('/products/{product}', 'show')->name('products.show');
 });
+
+Route::controller(CategoryController::class)->group(function (): void {
+    Route::get('/categories', 'index')->name('categories.index');
+    Route::get('/categories/{category:slug}', 'show')->name('categories.show');
+});
+
+Route::controller(CartController::class)->group(function (): void {
+    Route::get('/cart', 'index')->name('cart.index');
+    Route::post('/cart/items/{product}', 'store')->name('cart.items.store');
+    Route::patch('/cart/items/{product}', 'update')->name('cart.items.update');
+    Route::delete('/cart/items/{product}', 'destroy')->name('cart.items.destroy');
+    Route::delete('/cart', 'clear')->name('cart.clear');
+});
+
+Route::controller(OrderController::class)
+    ->middleware(['auth', 'verified'])
+    ->group(function (): void {
+        Route::get('/orders', 'index')->name('orders.index');
+        Route::post('/orders', 'store')->name('orders.store');
+        Route::patch('/orders/{order}/status', 'updateStatus')->name('orders.status.update');
+    });
+
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
-    ->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])
-            ->name('dashboard');
-
-        Route::post('/roles', [DashboardController::class, 'store'])->name('roles.store');
-        Route::patch('/roles/{role}', [DashboardController::class, 'update'])->name('roles.update');
-        Route::delete('/roles/{role}', [DashboardController::class, 'destroy'])->name('roles.destroy');
+    ->group(function (): void {
+        Route::controller(DashboardController::class)->group(function (): void {
+            Route::get('/', 'index')->name('dashboard');
+            Route::post('/roles', 'store')->name('roles.store');
+            Route::patch('/roles/{role}', 'update')->name('roles.update');
+            Route::delete('/roles/{role}', 'destroy')->name('roles.destroy');
+        });
 
         Route::resource('products', AdminProductController::class);
         Route::resource('users', UserAdminController::class);
 
-        Route::patch('users/{user}/password', [UserAdminController::class, 'resetPassword'])
-            ->name('users.password');
+        Route::patch('users/{user}/password', [UserAdminController::class, 'resetPassword'])->name('users.password');
 
         Route::resource('orders', OrderAdminController::class);
     });

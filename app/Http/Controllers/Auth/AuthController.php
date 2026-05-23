@@ -40,17 +40,23 @@ class AuthController extends Controller
 
         return redirect()
             ->route('login')
-            ->with('success', 'Registration was successful!');
+            ->with('success', 'Регистрация успешна. Проверьте email для подтверждения аккаунта.');
     }
     public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated();
 
         if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            if (!Auth::user()->hasVerifiedEmail()) {
+                return redirect()->intended(route('verification.notice'));
+            }
+
             return redirect()->intended('profile');
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials']);
+        return back()->withErrors(['email' => 'Неверный email или пароль']);
     }
 
     public function logout(): RedirectResponse
@@ -87,7 +93,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
         $this
-            ->userService
+            ->service
             ->updatePassword(
                 $user,
                 $validatedData['current_password'],

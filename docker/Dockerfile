@@ -1,9 +1,8 @@
-FROM php:8.3-fpm
+FROM php:8.4-fpm
 
 RUN apt-get update && apt-get install -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
-        libmcrypt-dev \
         libpng-dev \
         libicu-dev \
         libpq-dev \
@@ -20,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) exif \
     && docker-php-ext-install -j$(nproc) sockets \
     && docker-php-ext-install -j$(nproc) bcmath \
+    && docker-php-ext-install -j$(nproc) sockets \
     && docker-php-ext-enable sockets \
     && docker-php-ext-configure gd \
         --with-freetype=/usr/include/ \

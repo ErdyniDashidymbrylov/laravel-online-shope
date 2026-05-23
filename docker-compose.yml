@@ -1,6 +1,8 @@
 services:
   web:
     image: nginx
+    depends_on:
+      - php-fpm
     ports:
       - 80:80
     volumes:
@@ -11,11 +13,9 @@ services:
   php-fpm:
     build:
       dockerfile: ./docker/Dockerfile
-    environment:
-      - APP_ENV=local
-      - APP_KEY=base64:5sSiCEgdu9Y8sFKEnAc4hqubVozhoqJiqYNlZWmiPeY=
-      - APP_DEBUG=true
-      - APP_URL=http://localhost
+    depends_on:
+      - postgres
+      - rabbitmq
     volumes:
       - .:/var/www/html
       - .:/docker/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-xdebug.ini
@@ -32,3 +32,15 @@ services:
 
     ports:
       - 54321:5432
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST:-/}
+    ports:
+      - "5672:5672"
+      - "15672:15672"

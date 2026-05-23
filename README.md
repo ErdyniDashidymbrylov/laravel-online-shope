@@ -57,3 +57,16 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## RabbitMQ queues
+
+- The project uses `QUEUE_CONNECTION=failover` by default.
+- `failover` sends jobs to RabbitMQ first and falls back to the `database` queue if RabbitMQ is unavailable.
+- Queue jobs live in `app/Jobs` and are routed to named queues:
+  - `users.notifications.verify`
+  - `users.notifications.welcome`
+- Start infrastructure with `docker compose up -d rabbitmq postgres`.
+- Start the site locally with `composer dev`.
+- Start the RabbitMQ worker separately with `composer run dev:queue:rabbitmq`.
+- If RabbitMQ is not available, start the database worker with `composer run dev:queue:database`.
+- RabbitMQ management UI is available at `http://localhost:15672`.

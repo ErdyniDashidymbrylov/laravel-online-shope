@@ -6,11 +6,11 @@ namespace App\Services\Auth;
 
 use App\DTO\RegisterDto;
 use App\DTO\UpdateProfileDto;
+use App\Jobs\SendRegistrationVerificationJob;
 use App\Models\User;
-use Cassandra\Exception\ValidationException;
-use Couchbase\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserService
 {
@@ -23,12 +23,10 @@ class UserService
         $user->phone = $dto->phone; // если есть такое поле в БД
         $user->password = Hash::make($dto->password);
         $user->save();
+        SendRegistrationVerificationJob::dispatch($user->id);
 
         return $user;
     }
-    /**
-     * @throws AuthenticationException
-     */
     public function updateProfile(UpdateProfileDto $dto): void
     {
         $user = Auth::user();
@@ -50,4 +48,5 @@ class UserService
         $user->password = Hash::make($newPassword);
         $user->save();
     }
+
 }
