@@ -8,11 +8,17 @@ use App\DTO\Admin\OrderAdminStoreDto;
 use App\DTO\Admin\OrderAdminUpdateDto;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\OrderNotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class OrderAdminService
 {
+    public function __construct(
+        private readonly OrderNotificationService $orderNotificationService,
+    ) {
+    }
+
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return Order::query()
@@ -28,9 +34,20 @@ class OrderAdminService
 
     public function update(Order $order, OrderAdminUpdateDto $dto): Order
     {
+        $previousStatus = $order->status;
+
         $order->update($dto->toArray());
 
-        return $order->refresh();
+        $order = $order->refresh();
+
+        if (
+            $previousStatus !== Order::STATUS_SHIPPED
+            && $order->status === Order::STATUS_SHIPPED
+        ) {
+            $this->orderNotificationService->dispatchOrderShipped($order);
+        }
+
+        return $order;
     }
 
     public function delete(Order $order): bool

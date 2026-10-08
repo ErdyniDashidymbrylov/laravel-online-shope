@@ -27,13 +27,20 @@ class Order extends Model
         self::STATUS_COMPLETED => 'Завершен',
         self::STATUS_CANCELED => 'Отменен',
     ];
-
     public const PAYMENT_METHOD_CASH = 'cash';
+    public const PAYMENT_METHOD_YOOKASSA = 'yookassa';
+
+    public const PAYMENT_METHODS = [
+        self::PAYMENT_METHOD_CASH,
+        self::PAYMENT_METHOD_YOOKASSA,
+    ];
+
     public const PAYMENT_METHOD_CARD = 'card';
 
     public const PAYMENT_METHOD_LABELS = [
         self::PAYMENT_METHOD_CASH => 'Наличными при получении',
-        self::PAYMENT_METHOD_CARD => 'Картой при получении',
+        self::PAYMENT_METHOD_YOOKASSA => 'Онлайн-оплата YooKassa',
+        self::PAYMENT_METHOD_CARD => 'Онлайн-оплата картой',
     ];
 
     protected $fillable = [
@@ -73,5 +80,9 @@ class Order extends Model
         return $this->belongsTo(Address::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class);
+    }
 
 }

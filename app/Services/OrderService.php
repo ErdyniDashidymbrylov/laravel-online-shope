@@ -13,11 +13,20 @@ use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
+    public function __construct(
+        private readonly OrderNotificationService $orderNotificationService,
+    ) {
+    }
+
     /**
      * @throws \Throwable
      */
-    public function createOrder(User $user, string $paymentMethod, SessionCartService $cart): Order
-    {
+    public function createOrder(
+        User $user,
+        string $paymentMethod,
+        array $addressData,
+        SessionCartService $cart
+    ): Order {
         $items = $cart->getItems();
 
         if (!$items || count($items) === 0) {
@@ -26,17 +35,8 @@ class OrderService
             ]);
         }
 
-        $address = $user->addresses()
-            ->where('is_default', true)
-            ->first();
-
-        if (!$address) {
-            throw ValidationException::withMessages([
-                'address' => 'Добавьте основной адрес.'
-            ]);
-        }
-
-        return DB::transaction(function () use ($user, $address, $paymentMethod, $items, $cart) {
+        $order = DB::transaction(function () use ($user, $paymentMethod, $addressData, $items, $cart) {
+            $address = $this->storeOrderAddress($user, $addressData);
 
             $total = 0;
 
@@ -75,6 +75,27 @@ class OrderService
 
             return $order;
         });
+
+        $this->orderNotificationService->dispatchOrderCreated($order);
+
+        return $order;
+    }
+
+    /**
+     * @param array{city:string,street:string,house:string,save_address:bool} $addressData
+     */
+    private function storeOrderAddress(User $user, array $addressData): \App\Models\Address
+    {
+        if ($addressData['save_address']) {
+            $user->addresses()->update(['is_default' => false]);
+        }
+
+        return $user->addresses()->create([
+            'city' => $addressData['city'],
+            'street' => $addressData['street'],
+            'house' => $addressData['house'],
+            'is_default' => $addressData['save_address'],
+        ]);
     }
 
     public function cancel(Order $order): void

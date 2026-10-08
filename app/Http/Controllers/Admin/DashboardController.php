@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\UpdateRoleRequest;
 use App\Models\Product;
 use App\Models\Role;
 use App\Services\Admin\RoleService;
+use App\Services\SalesReportService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -20,8 +21,10 @@ class DashboardController extends Controller
 {
     public function __construct(
         private readonly RoleService $roleService,
+        private readonly SalesReportService $salesReportService,
     ) {
     }
+
     public function index(): View
     {
         $roles = Role::query()
@@ -30,8 +33,10 @@ class DashboardController extends Controller
             ->get();
 
         $productsCount = Product::query()->count();
+        $report = $this->salesReportService->getCurrentWeekReport();
+        $recentReports = $this->salesReportService->getRecentReports();
 
-        return view('admin.dashboard', compact('roles', 'productsCount'));
+        return view('admin.dashboard', compact('roles', 'productsCount', 'report', 'recentReports'));
     }
 
     public function store(StoreRoleRequest $request): JsonResponse|RedirectResponse

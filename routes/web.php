@@ -12,6 +12,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\YooKassaController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)
@@ -75,6 +76,11 @@ Route::controller(OrderController::class)
         Route::post('/orders', 'store')->name('orders.store');
         Route::patch('/orders/{order}/status', 'updateStatus')->name('orders.status.update');
     });
+
+Route::post('/payments/yookassa/webhook', [YooKassaController::class, 'webhook'])->name('yookassa.webhook');
+Route::get('/payments/yookassa/return/{order}', [YooKassaController::class, 'return'])
+    ->middleware(['auth', 'verified'])
+    ->name('yookassa.return');
 
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')

@@ -12,12 +12,14 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('role_user', function (Blueprint $table) {
-            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
-            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+        if (!Schema::hasTable('role_user')) {
+            Schema::create('role_user', function (Blueprint $table) {
+                $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+                $table->foreignId('role_id')->constrained()->cascadeOnDelete();
 
-            $table->primary(['user_id', 'role_id']);
-        });
+                $table->primary(['user_id', 'role_id']);
+            });
+        }
     }
 
     /**

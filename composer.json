@@ -46,13 +46,13 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-          "npx concurrently -c \"#93c5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,logs,vite"
+          "npx concurrently -c \"#93c5fd,#fb7185,#fdba74,#a78bfa\" \"php artisan serve\" \"php artisan pail --timeout=0\" \"npm run dev\" \"php artisan schedule:work\" --names=server,logs,vite,scheduler"
         ],
         "dev:queue:rabbitmq": [
-          "@php artisan queue:work rabbitmq --queue=users.notifications.verify,users.notifications.welcome,default --tries=3"
+          "@php artisan queue:work rabbitmq --queue=users.notifications.verify,users.notifications.welcome,orders.notifications.user,orders.notifications.staff,default --tries=3"
         ],
         "dev:queue:database": [
-          "@php artisan queue:work database --queue=users.notifications.verify,users.notifications.welcome,default --tries=3"
+          "@php artisan queue:work database --queue=users.notifications.verify,users.notifications.welcome,orders.notifications.user,orders.notifications.staff,default --tries=3"
         ],
         "test": [
           "@php artisan config:clear --ansi",

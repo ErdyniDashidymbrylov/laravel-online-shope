@@ -65,8 +65,25 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 - Queue jobs live in `app/Jobs` and are routed to named queues:
   - `users.notifications.verify`
   - `users.notifications.welcome`
+  - `orders.notifications.user`
+  - `orders.notifications.staff`
 - Start infrastructure with `docker compose up -d rabbitmq postgres`.
 - Start the site locally with `composer dev`.
 - Start the RabbitMQ worker separately with `composer run dev:queue:rabbitmq`.
 - If RabbitMQ is not available, start the database worker with `composer run dev:queue:database`.
 - RabbitMQ management UI is available at `http://localhost:15672`.
+
+## Sales reports scheduler
+
+- Run `php artisan migrate` to create `daily_sales_reports`.
+- `composer dev` starts `schedule:work`; the seven most recent daily reports are recalculated every two minutes.
+- On a server, run `php artisan schedule:run` every minute through cron instead of `schedule:work`.
+- Check the task with `php artisan schedule:list`. The sales report runs synchronously and does not need a queue worker.
+
+## YooKassa payments
+
+- Set `YOOKASSA_SHOP_ID` and `YOOKASSA_SECRET_KEY` in `.env`.
+- Use `yookassa` as the online payment method during checkout.
+- Configure YooKassa webhook URL as `/payments/yookassa/webhook`.
+- The customer return URL is generated automatically as `/payments/yookassa/return/{order}`.
+- Receipt data is embedded into payment creation when `YOOKASSA_RECEIPTS_MODE=embedded`.
