@@ -14,8 +14,12 @@ services:
     build:
       dockerfile: ./docker/Dockerfile
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
     volumes:
       - .:/var/www/html
       - .:/docker/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-xdebug.ini
@@ -44,3 +48,21 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
