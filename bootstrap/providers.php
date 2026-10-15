@@ -3,5 +3,6 @@
 declare(strict_types=1);
 
 return [
-    \app\Providers\AppServiceProvider::class,
+    App\Providers\ElasticsearchServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
 ];

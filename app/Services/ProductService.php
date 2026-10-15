@@ -10,28 +10,48 @@ use App\DTO\ProductDto;
 use App\DTO\ProductFilterDto;
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator as EloquentPaginator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ProductService
 {
+    public function __construct(private readonly ProductSearchService $search)
+    {
+    }
+
     public function getProducts(ProductFilterDto $dto): LengthAwarePaginator
     {
+        $term = trim((string) $dto->q);
+
+        if ($term !== '') {
+            try {
+                $page = EloquentPaginator::resolveCurrentPage();
+                $result = $this->search->search($dto, $page);
+                $productsById = Product::query()->whereKey($result['ids'])->get()->keyBy('id');
+                $products = collect($result['ids'])
+                    ->map(static fn (int $id): ?Product => $productsById->get($id))
+                    ->filter()
+                    ->values();
+
+                return (new EloquentPaginator($products, $result['total'], $dto->per_page, $page, [
+                    'path' => EloquentPaginator::resolveCurrentPath(),
+                ]))->appends(request()->query());
+            } catch (Throwable $exception) {
+                Log::warning('Поиск Elasticsearch недоступен, используется поиск в базе данных', [
+                    'exception' => $exception,
+                ]);
+            }
+        }
+
         $query = Product::query();
 
-        /**
-         * 1) Поиск (базовый)
-         * Ищем по name и sku.
-         *
-         * Важно: оборачиваем OR-условия в where(function),
-         * чтобы они не ломали остальные фильтры.
-         */
-        if ($dto->q) {
-            $q = $dto->q;
-
-            $query->where(function ($subQuery) use ($q) {
+        if ($term !== '') {
+            $query->where(function ($subQuery) use ($term) {
                 $subQuery
-                    ->where('name', 'like', '%' . $q . '%')
-                    ->orWhere('sku', 'like', '%' . $q . '%');
+                    ->where('name', 'like', '%' . $term . '%')
+                    ->orWhere('description', 'like', '%' . $term . '%');
             });
         }
 

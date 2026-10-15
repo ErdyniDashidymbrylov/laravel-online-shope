@@ -36,6 +36,7 @@ class CategoryController extends Controller
             'products' => $products,
             'category' => $category,
             'dto'      => $dto,
+            'maxPrice' => $this->productService->getMaxProductPrice(),
         ]);
     }
 

@@ -80,6 +80,12 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 - On a server, run `php artisan schedule:run` every minute through cron instead of `schedule:work`.
 - Check the task with `php artisan schedule:list`. The sales report runs synchronously and does not need a queue worker.
 
+## Product search
+
+- Start Elasticsearch with `docker compose up -d elasticsearch` and set `ELASTICSEARCH_HOST=http://elasticsearch:9200` for the PHP container.
+- Run `php artisan products:reindex` inside the PHP container to index products that existed before search was enabled.
+- The catalog searches product names and descriptions through Elasticsearch. Product changes from the application update the index automatically.
+
 ## YooKassa payments
 
 - Set `YOOKASSA_SHOP_ID` and `YOOKASSA_SECRET_KEY` in `.env`.

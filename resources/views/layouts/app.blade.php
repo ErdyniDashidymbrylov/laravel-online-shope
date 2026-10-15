@@ -11,7 +11,12 @@
     <div class="container">
      <a href="{{ route('home') }}" class="navbar-brand">Laravel Shop</a>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <form method="GET" action="{{ route('products.index') }}" role="search" class="d-flex gap-1">
+                <input type="search" name="q" value="{{ is_string(request()->query('q')) ? request()->query('q') : '' }}"
+                       class="form-control form-control-sm" placeholder="Поиск товаров" aria-label="Поиск товаров">
+                <button type="submit" class="btn btn-outline-primary btn-sm">Найти</button>
+            </form>
 
             @guest
                 <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Вход</a>

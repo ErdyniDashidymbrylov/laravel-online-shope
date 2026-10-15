@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\GenerateSalesReportsJob;
+use App\Services\ProductSearchService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -14,3 +15,8 @@ Schedule::call(fn () => GenerateSalesReportsJob::dispatchSync())
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('products:reindex', function (ProductSearchService $search): void {
+    $count = $search->reindex();
+    $this->info("Проиндексировано товаров: {$count}");
+})->purpose('Синхронизировать товары с Elasticsearch');
